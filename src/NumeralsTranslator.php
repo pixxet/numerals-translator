@@ -56,25 +56,49 @@ class NumeralsTranslator
     ];
 
     /**
+     * Translates any numeral string or array value to western arabic numerals
+     *
+     * @param  {array|string} $input
+     *
+     * @return {array|string} translated string or array
+     */
+    public static function TranslateNumerals($input)
+    {
+
+        if (is_array($input)) {
+            foreach ($input as $key => $value) {
+                $input[$key] = self::TranslateNumerals($value);
+            }
+        } else {
+            $input = self::_TranslateNumerals($input);
+        }
+
+        return $input;
+    }
+
+    /**
      * Translates any numeral string to western arabic numerals
      *
-     * @param  int|double|string $number        if string is not numeric false is returned
+     * @param  {string} $string
      *
-     * @return {bool|string}         bool if string is not numeric false is returned
-     *                               string the translated to western arabic
+     * @return {string} translated string
      */
-    public static function TranslateNumerals($number)
+    private static function _TranslateNumerals($string)
     {
+        if (!is_string($string)) {
+            return $string;
+        }
+
         foreach (self::$numerals_regex as $regex_name => $regex) {
-            if (preg_match_all('/' . $regex . '/u', $number, $matches)) {
+            if (preg_match_all('/' . $regex . '/u', $string, $matches)) {
                 foreach ($matches[0] as $search) {
                     $replace = array_search($search, self::$map[$regex_name]);
-                    $number  = str_replace($search, $replace, $number);
+                    $string  = str_replace($search, $replace, $string);
                 }
             }
         }
 
-        return $number;
+        return $string;
     }
 
 }
